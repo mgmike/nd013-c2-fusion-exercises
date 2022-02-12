@@ -36,6 +36,8 @@ from tools.waymo_reader.simple_waymo_open_dataset_reader import utils as waymo_u
 import misc.objdet_tools as tools
 from misc.helpers import load_object_from_file
 
+print("Open cv version: ", cv2.__version__)
+
 # add exercise directories to python path to enable relative imports
 SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
 EXE_L1 = 'lesson-1-lidar-sensor/exercises/starter'
@@ -59,7 +61,7 @@ import l1_exercises
 
 # Select Waymo Open Dataset file and frame numbers
 data_filename = 'training_segment-1005081002024129653_5313_150_5333_150_with_camera_labels.tfrecord' # Sequence 1
-#data_filename = 'training_segment-10072231702153043603_5725_000_5745_000_with_camera_labels.tfrecord' # Sequence 2
+# data_filename = 'training_segment-10072231702153043603_5725_000_5745_000_with_camera_labels.tfrecord' # Sequence 2
 # data_filename = 'training_segment-10963653239323173269_1924_000_1944_000_with_camera_labels.tfrecord'  # Sequence 3
 show_only_frames = [0, 10]  # show only frames in interval for debugging
 
@@ -76,7 +78,8 @@ datafile_iter = iter(datafile)  # initialize dataset iterator
 # Perform detection & tracking over all selected frames
 
 cnt_frame = 0
-det_performance_all = []  # used for exercises in C2-4
+thresh_range = range(0,8)
+det_performance_all = [[] for i in thresh_range]  # used for exercises in C2-4
 while True:
     try:
         #################################
@@ -101,6 +104,7 @@ while True:
         #######
 
         lidar_name = dataset_pb2.LaserName.TOP
+        lidar = [obj for obj in frame.lasers if obj.name == lidar_name][0]
 
         # Exercise C1-3-1 : print no. of vehicles
         # l1_exercises.print_no_of_vehicles(frame) 
@@ -147,11 +151,11 @@ while True:
         configs.model = 'darknet'
 
         # Example C2-3-1 : Crop point cloud
-        # lidar_pcl = l1_examples.range_image_to_point_cloud(frame, lidar_name, True)
+        # lidar_pcl = l1_examples.range_image_to_point_cloud(frame, lidar_name, False)
         # cropped_pcl = l2_examples.crop_pcl(lidar_pcl, configs, False)
 
         # Exercise C2-3-2 : Transform metric point coordinates to BEV space
-        # l2_exercises.pcl_to_bev(cropped_pcl, configs)
+        # lidar_bev = l2_exercises.pcl_to_bev(cropped_pcl, configs)
 
         # Example C2-3-3 : Minimum and maximum intensity
         # l2_examples.min_max_intensity(lidar_pcl)
@@ -160,16 +164,20 @@ while True:
         # l2_examples.count_vehicles(frame)
 
         # Example C2-4-3 : Display label bounding boxes on top of BEV map
-        #lidar_bev = load_object_from_file(results_fullpath, data_filename, 'lidar_bev', cnt_frame)
-        #lidar_bev_labels = l2_examples.render_bb_over_bev(lidar_bev, frame.laser_labels, configs)
+        # lidar_bev = load_object_from_file(results_fullpath, data_filename, 'lidar_bev', cnt_frame)
+        # lidar_bev_labels = l2_examples.render_bb_over_bev(lidar_bev, frame.laser_labels, configs, False)
 
-        # Example C2-4-4 : Display detected objects on top of BEV map
-        #detections = load_object_from_file(results_fullpath, data_filename, 'detections_' + configs.model + '_' + str(configs.conf_thresh), cnt_frame)
-        #l2_examples.render_obj_over_bev(detections, lidar_bev_labels, configs, True)
+        # Example C2-4-4 : Display detected objects on top of BEV ma
+        # detections = load_object_from_file(results_fullpath, data_filename, 'detections_' + configs.model + '_' + str(configs.conf_thresh), cnt_frame)
+        # l2_examples.render_obj_over_bev(detections, lidar_bev_labels, configs, True)
 
         # Exercise C2-4-5 : Compute precision and recall (part 1/2 - remove comments only, no action inside functions required)
-        #det_performance = load_object_from_file(results_fullpath, data_filename, 'det_performance_' + configs.model + '_' + str(configs.conf_thresh), cnt_frame)
-        #det_performance_all.append(det_performance)  # store all evaluation results in a list for performance assessme
+        # det_performance = load_object_from_file(results_fullpath, data_filename, 'det_performance_' + configs.model + '_' + str(configs.conf_thresh), cnt_frame)
+        # det_performance_all.append(det_performance)  # store all evaluation results in a list for performance assessme
+
+        for i in thresh_range:
+            det_performance = load_object_from_file(results_fullpath, data_filename, 'det_performance_' + configs.model + '_' + str(float(i + 1) / 10.0), cnt_frame)
+            det_performance_all[i].append(det_performance)  # store all evaluation results in a list for performance assessme
 
         #######
         ####### LESSON 2 EXERCISES & EXAMPLES  END #######
@@ -181,8 +189,8 @@ while True:
         # if StopIteration is raised, break from loop
         break
 
-    # Exercise C2-4-5 : Compute precision and recall (part 2/2)
-    # l2_exercises.compute_precision_recall(det_performance_all)
+# Exercise C2-4-5 : Compute precision and recall (part 2/2)
+precision_recall = l2_exercises.compute_precision_recall(det_performance_all, conf_thresh_range=thresh_range, size=len(det_performance_all))
 
-    # Exercise C2-4-6 : Plotting the precision-recall curve
-    # l2_exercises.plot_precision_recall()
+# Exercise C2-4-6 : Plotting the precision-recall curve
+l2_exercises.plot_precision_recall(precision_recall, thresh_range)
