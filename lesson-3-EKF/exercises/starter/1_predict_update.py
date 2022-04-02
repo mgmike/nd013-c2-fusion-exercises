@@ -22,18 +22,23 @@ class Filter:
     def predict(self, x, P):
         # predict state and estimation error covariance to next timestep
 
-        ############
-        # TODO: implement prediction step
-        ############
+        F = self.F()
+        x = F * x
+        P = F * P * F.transpose() + self.Q()
         
         return x, P
 
     def update(self, x, P, z, R):
         # update state and covariance with associated measurement
 
-        ############
-        # TODO: implement update step
-        ############
+        H = self.H()
+        H_t = H.transpose()
+        gamma = z - H * x
+        S = H * P * H_t + R
+        K = P * H_t * np.linalg.inv(S)
+        x = x + K * gamma
+        I = np.identity(self.dim_state)
+        P = (I - K * H) * P
         
         return x, P     
         

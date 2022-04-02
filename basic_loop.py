@@ -164,12 +164,12 @@ while True:
         # l2_examples.count_vehicles(frame)
 
         # Example C2-4-3 : Display label bounding boxes on top of BEV map
-        # lidar_bev = load_object_from_file(results_fullpath, data_filename, 'lidar_bev', cnt_frame)
-        # lidar_bev_labels = l2_examples.render_bb_over_bev(lidar_bev, frame.laser_labels, configs, False)
+        lidar_bev = load_object_from_file(results_fullpath, data_filename, 'lidar_bev', cnt_frame)
+        lidar_bev_labels = l2_examples.render_bb_over_bev(lidar_bev, frame.laser_labels, configs, False)
 
         # Example C2-4-4 : Display detected objects on top of BEV ma
-        # detections = load_object_from_file(results_fullpath, data_filename, 'detections_' + configs.model + '_' + str(configs.conf_thresh), cnt_frame)
-        # l2_examples.render_obj_over_bev(detections, lidar_bev_labels, configs, True)
+        detections = load_object_from_file(results_fullpath, data_filename, 'detections_' + configs.model + '_' + str(configs.conf_thresh), cnt_frame)
+        l2_examples.render_obj_over_bev(detections, lidar_bev_labels, configs, True)
 
         # Exercise C2-4-5 : Compute precision and recall (part 1/2 - remove comments only, no action inside functions required)
         # det_performance = load_object_from_file(results_fullpath, data_filename, 'det_performance_' + configs.model + '_' + str(configs.conf_thresh), cnt_frame)

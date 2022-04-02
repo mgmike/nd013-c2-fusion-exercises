@@ -13,9 +13,26 @@ class Track:
         self.x = np.zeros((6,1))
         self.P = np.zeros((6,6))
 
-        ############
-        # TODO: initialize self.x and self.P from measurement z and R, don't forget coordinate transforms
-        ############
+        z = np.zeros((4,1))
+        z[3] = 1
+        z[:3] = meas.z
+        T = meas.sens_to_veh
+        R = meas.R
+        M_rot = T[0:3, 0:3]
+
+        # Compute position estimation and error covariance
+        self.x[0:3] = (T * z)[0:3]
+        self.P[0:3, 0:3] = M_rot * R * M_rot.transpose()
+
+        # Compute velocity estimation error covariance
+        sigma_p44 = 50  # initial setting for estimation error covariance P for vx
+        sigma_p55 = 50  # initial setting for estimation error covariance P for vy
+        sigma_p66 = 5   # initial setting for estimation error covariance P for vz
+        P_vel = np.matrix([[sigma_p44**2, 0, 0],
+                           [0, sigma_p55**2, 0],
+                           [0, 0, sigma_p66**2]])
+        self.P[3:6, 3:6] = P_vel
+
         
         
 ###################  

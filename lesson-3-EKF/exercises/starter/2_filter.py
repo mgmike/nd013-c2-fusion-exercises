@@ -12,30 +12,26 @@ class Filter:
 
     def F(self):
         # system matrix
-
-        ############
-        # TODO: implement and return F
-        ############
-        
-        pass
+        dt = self.dt
+        return np.matrix([[1,0,dt,0],
+                          [0,1,0,dt],
+                          [0,0,1,0],
+                          [0,0,0,1]])
 
     def Q(self):
         # process noise covariance Q
-
-        ############
-        # TODO: implement and return Q
-        ############
-        
-        pass
+        q1 = self.dt * self.q
+        q2 = (self.dt**2 * self.q) / 2
+        q3 = (self.dt**3 * self.q) / 3
+        return np.matrix([[q3,0,q2,0],
+                          [0,q3,0,q2],
+                          [q2,0,q1,0],
+                          [0,q2,0,q1]])
     
     def H(self):
         # measurement matrix H
-
-        ############
-        # TODO: implement and return H
-        ############
-    
-        pass
+        return np.matrix([[1,0,0,0],
+                          [0,1,0,0]])
     
     def predict(self, x, P):
         # predict state and estimation error covariance to next timestep

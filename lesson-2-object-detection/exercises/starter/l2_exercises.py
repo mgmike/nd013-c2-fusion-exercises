@@ -134,7 +134,7 @@ def pcl_to_bev(lidar_pcl, configs, vis=True):
 
     # create the intensity map
     intensity_map = np.zeros((configs.bev_height + 1, configs.bev_width + 1))
-    intensity_map[np.int_(lidar_pcl_hei[:, 0]), np.int_(lidar_pcl_hei[:, 1])] = lidar_pcl_hei[:, 3] / (np.amax(lidar_pcl_int[:, 3]) - np.amin(lidar_pcl_int[:, 3]))
+    intensity_map[np.int_(lidar_pcl_int[:, 0]), np.int_(lidar_pcl_int[:, 1])] = lidar_pcl_int[:, 3] / (np.amax(lidar_pcl_int[:, 3]) - np.amin(lidar_pcl_int[:, 3]))
 
     # visualize intensity map
     if vis:

@@ -1,4 +1,5 @@
 # imports
+from cmath import inf
 import numpy as np
 import matplotlib
 matplotlib.use('wxagg') # change backend so that figure maximizing works on Mac as well   
@@ -44,24 +45,41 @@ class Association:
         # check if measurement lies inside gate
 
         ############
-        # TODO: return True if measurement lies inside gate, otherwise return False
+        # - return True if measurement lies inside gate, otherwise return False
         ############
-        
-        return True
+
+        probibility_of_gate = 0.95
+        limit = chi2.ppf(probibility_of_gate, 2)
+        if MHD < limit:
+            return True
+        else:
+            return False
         
     def get_closest_track_and_meas(self):
         # find closest track and measurement for next update
 
         ############
-        # TODO: 
         # - find indices of closest track and measurement for next update
         # - return NAN if no more associations can be found (i.e. minimum entry in association matrix is infinity)
         # - delete row and column in association matrix for closest track and measurement
         # - remove found track number from unassigned_tracks, meas number from unassigned_meas
         # - return indices of closest track and measurement for next update
         ############
-        
-        return np.nan, np.nan
+
+        min = np.min(self.association_matrix)
+        if min == np.inf:
+            return np.nan, np.nan
+
+        n, m = np.unravel_index(self.association_matrix.argmin(), self.association_matrix.shape)
+        # remove row then column
+        self.association_matrix = np.delete(np.delete(self.association_matrix, n, 0), m, 1)
+        # Get  track and measurement to delete
+        update_track = self.unassigned_tracks[n]
+        update_meas = self.unassigned_meas[m]
+        # remove track and measurement from unassigned lists
+        self.unassigned_tracks.remove(update_track)
+        self.unassigned_meas.remove(update_meas)
+        return update_track, update_meas
 
 ################## 
 class Track:

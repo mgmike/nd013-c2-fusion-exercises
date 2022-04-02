@@ -15,20 +15,28 @@ class Camera:
     def get_hx(self, x):    
         # calculate nonlinear measurement expectation value h(x)   
         hx = np.zeros((2,1))
+        px, py, pz, _vx, _vy, _vz = x
 
-        ############
-        # TODO: implement and return h(x)
-        ############
+        if px == 0:
+            raise NameError('Jacobain is not defined for px=0!')
+        else:
+            hx[0] = self.c_i - (self.f_i * py) / px
+            hx[1] = self.c_j - (self.f_j * pz) / px
         
         return hx
     
     def get_H(self, x):
         # calculate Jacobian H at current x from h(x)
         H = np.matrix(np.zeros((2, 6)))
+        px, py, pz, _vx, _vy, _vz = x
 
-        ############
-        # TODO: implement and return H
-        ############ 
+        if px == 0:
+            raise NameError('Jacobain is not defined for px=0!')
+        else:
+            H[0,0] = (self.f_i * py) / px**2
+            H[0,1] = -1 * self.f_i / px
+            H[1,0] = (self.f_j * pz) / px**2
+            H[1,2] = -1 * self.f_j / px
         
         return H
  
